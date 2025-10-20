@@ -1,0 +1,29 @@
+name: Google Drive Loader with Env Detection
+
+on:
+  workflow_dispatch:   # manual trigger
+  schedule:
+    - cron: "0 */12 * * *"  # every 12 hours
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas openpyxl pydrive2
+
+      - name: Run Drive Loader
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        run: |
+          python 1_Read_Google_Drive_In_GitHub_Actions.py
