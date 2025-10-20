@@ -46,7 +46,6 @@ def Github_log(msg: str):
 
 # =====================================================
 def Github_connect_to_drive():
-    """Authenticate to Google Drive using the service account key."""
     try:
         creds_json = os.getenv(GOOGLE_SECRET_ENV)
         if not creds_json:
@@ -56,21 +55,16 @@ def Github_connect_to_drive():
             f.write(creds_json)
 
         gauth = GoogleAuth()
-        gauth.LoadServiceConfigSettings({
-            "client_config_backend": "service",
-            "service_config": {
-                "client_json_file_path": "service_account.json"
-            }
-        })
-        gauth.ServiceAuth()
+        gauth.ServiceAuth()  # this reads service_account.json automatically
         drive = GoogleDrive(gauth)
-        Github_log("✅ Connected to Google Drive successfully.")
-        return drive
 
+        Github_log("✅ Connected to Google Drive successfully (Service Account Auth).")
+        return drive
     except Exception as e:
         Github_log(f"❌ Drive connection failed: {e}")
         traceback.print_exc()
         sys.exit(1)
+
 
 # =====================================================
 def Github_download_file_from_drive(file_id: str, local_name: str):
