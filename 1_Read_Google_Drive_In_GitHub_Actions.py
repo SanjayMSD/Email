@@ -7,9 +7,6 @@ from datetime import datetime
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from oauth2client.service_account import ServiceAccountCredentials
-import os
-import json
-
 
 # --- 1 Local ENVIRONMENT ---
 LocalPath = r"D:\SANJAY\7 GitHub Actions"  # 🔹 Replace with your local path
@@ -69,17 +66,35 @@ def Github_connect_to_drive():
         print(f"❌ Drive connection failed: {e}")
         raise
 
-
 # =====================================================
 def Github_download_file_from_drive(file_id: str, local_name: str):
-    """Download a Google Drive file by ID."""
+    """Download a Google Drive file by ID first; fallback to file name if ID fails."""
     try:
         drive = Github_connect_to_drive()
-        Github_log(f"📥 Downloading file with ID: {file_id}")
-        file_obj = drive.CreateFile({'id': file_id})
-        file_obj.GetContentFile(local_name)
-        Github_log(f"✅ File downloaded as '{local_name}'")
-        return True
+        Github_log(f"📥 Attempting to download file by ID: {file_id}")
+
+        try:
+            # Try by File ID
+            file_obj = drive.CreateFile({'id': file_id})
+            file_obj.GetContentFile(local_name)
+            Github_log(f"✅ File downloaded by ID as '{local_name}'")
+            return True
+        except Exception as e_id:
+            Github_log(f"⚠️ Failed to download by ID: {e_id}")
+            Github_log(f"📥 Attempting to download file by name: '{local_name}'")
+
+            # Fallback: search by file name
+            file_list = drive.ListFile({'q': f"title='{local_name}' and trashed=false"}).GetList()
+            if not file_list:
+                Github_log(f"❌ No file found with name '{local_name}'")
+                return False
+
+            # Download the first match
+            file_obj = file_list[0]
+            file_obj.GetContentFile(local_name)
+            Github_log(f"✅ File downloaded by name as '{local_name}'")
+            return True
+
     except Exception as e:
         Github_log(f"❌ Failed to download file: {e}")
         traceback.print_exc()
@@ -124,24 +139,28 @@ def Github_upload_file_to_drive(local_name: str, folder_id: str = None):
 
 # =====================================================
 def main():
-    # ✅ Correct conditional
     if ENVIRONMENT in ("LOCAL", "COLAB"):
         print("DO THIS")
     else:
         try:
             Github_log(f"🚀 Starting script in {ENVIRONMENT} environment...")
+
+            # ✅ Download with fallback
             if not Github_download_file_from_drive(ColabFileID, LocalFile):
                 Github_log("❌ Stopping: File download failed.")
                 sys.exit(1)
 
+            # ✅ Process file
             if not Github_process_file(LocalFile, UPDATED_FILE):
                 Github_log("⚠️ Processing failed. Skipping upload.")
                 sys.exit(1)
 
+            # ✅ Upload processed file
             if not Github_upload_file_to_drive(UPDATED_FILE):
                 Github_log("⚠️ Upload failed, but script completed gracefully.")
             else:
                 Github_log("🎉 All steps completed successfully.")
+
         except Exception as e:
             Github_log(f"💥 Fatal error in main: {e}")
             traceback.print_exc()
@@ -150,4 +169,3 @@ def main():
 # =====================================================
 if __name__ == "__main__":
     main()
-
