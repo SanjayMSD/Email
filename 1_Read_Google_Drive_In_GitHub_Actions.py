@@ -13,7 +13,7 @@ LocalFile = "filtered_companies.xlsx"
 
 # --- 2 Google Colab ENVIRONMENT ---
 ColabPath = "/content/drive/MyDrive/Personal Colab/"  # 🔹 Replace with your Colab path
-ColabFileID = "YOUR_FILE_ID_HERE"       # Replace with actual Google Drive file ID
+ColabFileID = "YOUR_FILE_ID_HERE"  # Replace with actual Google Drive file ID
 
 # --- 3 GITHUB ENVIRONMENT ---
 GitHubPath = os.getcwd()  # 🔹 Default repo path for GitHub Actions
@@ -21,7 +21,7 @@ GOOGLE_SECRET_ENV = "GOOGLE_CREDENTIALS"
 
 UPDATED_FILE = "filtered_companies.xlsx"
 
-# Detect environment
+# --- Environment Detection ---
 if os.path.exists(LocalPath):
     os.chdir(LocalPath)
     ENVIRONMENT = "LOCAL"
@@ -38,9 +38,8 @@ else:
     LastKeyFile = "Last_Keys"
     print("📁 Running GitHub Actions Environment")
 
-# --- MAIN CONFIGURATION ---
-
 # =====================================================
+# --- LOGGING ---
 def Github_log(msg: str):
     """Timestamped logger for consistent output."""
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
@@ -53,7 +52,6 @@ def Github_connect_to_drive():
         if not creds_json:
             raise ValueError("Missing GOOGLE_CREDENTIALS secret in environment.")
 
-        # Save credentials to a temporary file
         with open("service_account.json", "w") as f:
             f.write(creds_json)
 
@@ -128,20 +126,20 @@ def Github_upload_file_to_drive(local_name: str, folder_id: str = None):
 
 # =====================================================
 def main():
-    if ENVIRONMENT == 'LOCAL' or 'COLAB':
-        print('DO THIS')
+    # ✅ Correct conditional
+    if ENVIRONMENT in ("LOCAL", "COLAB"):
+        print("DO THIS")
     else:
         try:
             Github_log(f"🚀 Starting script in {ENVIRONMENT} environment...")
-        
             if not Github_download_file_from_drive(ColabFileID, LocalFile):
                 Github_log("❌ Stopping: File download failed.")
                 sys.exit(1)
-        
+
             if not Github_process_file(LocalFile, UPDATED_FILE):
                 Github_log("⚠️ Processing failed. Skipping upload.")
                 sys.exit(1)
-        
+
             if not Github_upload_file_to_drive(UPDATED_FILE):
                 Github_log("⚠️ Upload failed, but script completed gracefully.")
             else:
@@ -150,9 +148,7 @@ def main():
             Github_log(f"💥 Fatal error in main: {e}")
             traceback.print_exc()
             sys.exit(1)
-            
 
 # =====================================================
 if __name__ == "__main__":
     main()
-    
