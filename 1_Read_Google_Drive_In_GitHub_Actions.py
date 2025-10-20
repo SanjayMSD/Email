@@ -6,6 +6,10 @@ import pandas as pd
 from datetime import datetime
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+from oauth2client.service_account import ServiceAccountCredentials
+import os
+import json
+
 
 # --- 1 Local ENVIRONMENT ---
 LocalPath = r"D:\SANJAY\7 GitHub Actions"  # 🔹 Replace with your local path
@@ -47,23 +51,23 @@ def Github_log(msg: str):
 # =====================================================
 def Github_connect_to_drive():
     try:
-        creds_json = os.getenv(GOOGLE_SECRET_ENV)
+        creds_json = os.getenv("GOOGLE_CREDENTIALS")
         if not creds_json:
             raise ValueError("Missing GOOGLE_CREDENTIALS secret in environment.")
-
-        with open("service_account.json", "w") as f:
-            f.write(creds_json)
-
+        
+        creds_dict = json.loads(creds_json)
+        scopes = ['https://www.googleapis.com/auth/drive']
+        credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scopes)
+        
         gauth = GoogleAuth()
-        gauth.ServiceAuth()  # this reads service_account.json automatically
+        gauth.credentials = credentials
         drive = GoogleDrive(gauth)
-
-        Github_log("✅ Connected to Google Drive successfully (Service Account Auth).")
+        
+        print("✅ Connected to Google Drive successfully (Service Account Auth).")
         return drive
     except Exception as e:
-        Github_log(f"❌ Drive connection failed: {e}")
-        traceback.print_exc()
-        sys.exit(1)
+        print(f"❌ Drive connection failed: {e}")
+        raise
 
 
 # =====================================================
