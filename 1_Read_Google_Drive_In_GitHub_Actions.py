@@ -17,7 +17,7 @@ LocalFile = "filtered_companies.xlsx"
 
 # --- 2 Google Colab ENVIRONMENT ---
 ColabPath = "/content/drive/MyDrive/Personal Colab/"  # 🔹 Replace with your Colab path
-ColabFileID = "YOUR_FILE_ID_HERE"  # Replace with actual Google Drive file ID
+ColabFileID = "1ykHeAaMDchKP8vvolCsct-tKUxdLQwHH"  # Replace with actual Google Drive file ID
 
 # --- 3 GITHUB ENVIRONMENT ---
 GitHubPath = os.getcwd()  # 🔹 Default repo path for GitHub Actions
@@ -150,3 +150,4 @@ def main():
 # =====================================================
 if __name__ == "__main__":
     main()
+
