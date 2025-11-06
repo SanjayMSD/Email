@@ -40,7 +40,7 @@ not_accessible_file = os.path.join(repo_path, "Not_Accessible_Websites.xlsx")
 
 # --- Time limit: 5 hours 50 minutes ---
 start_time = time.time()
-MAX_RUNTIME = 0 * 60 * 60 + 15 * 60 # 5 * 60 * 60 + 50 * 60  # 5h 50m = 21000 seconds
+MAX_RUNTIME = 0 * 60 * 60 + 2 * 60 # 5 * 60 * 60 + 50 * 60  # 5h 50m = 21000 seconds
 
 # ------------- Helper Functions -------------
 
@@ -183,4 +183,5 @@ finally:
 print("\n🏁 Task completed.")
 print(f"✅ Website emails saved in: {emails_file}")
 print(f"❌ Not accessible list saved in: {not_accessible_file}")
+
 
