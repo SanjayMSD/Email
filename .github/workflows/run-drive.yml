@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas openpyxl pydrive2
+          pip install pandas openpyxl pydrive2 beautifulsoup4
 
       - name: Run Drive Loader
         env:
