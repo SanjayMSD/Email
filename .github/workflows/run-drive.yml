@@ -10,20 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🧭 1. Checkout your repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 🐍 2. Setup Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
+      # 📦 3. Install dependencies
       - name: Install dependencies
         run: |
-          pip install pandas openpyxl pydrive2 beautifulsoup4
+          pip install pandas openpyxl pydrive2 beautifulsoup4 requests
 
+      # 🚀 4. Run your Python script
       - name: Run Drive Loader
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
         run: |
           python 1_Read_Google_Drive_In_GitHub_Actions.py
+
+      # 💾 5. Commit & push updated Excel files back to repo
+      - name: Commit and push results
+        if: always()   # run even if previous step fails
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git add Website_Emails.xlsx Not_Accessible_Websites.xlsx Dataset_M10_D20.xlsx || echo "No files to add"
+          git commit -m "🔄 Auto-update: website scan results [$(date)]" || echo "No changes to commit"
+          git push origin HEAD:${{ github.ref }} || echo "No changes to push"
