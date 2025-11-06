@@ -1,22 +1,3 @@
-# import os
-# import pandas as pd
-
-
-# repo_path = os.getcwd()
-# print("Current Repo Path:", repo_path)
-
-
-# file_name = "Dataset_M10_D20.xlsx"
-# file_path = os.path.join(repo_path, file_name)
-
-
-# if os.path.exists(file_path):
-#     print(f"✅ File found: {file_path}")
-#     df = pd.read_excel(file_path)
-#     print(df.head())
-# else:
-#     print(f"❌ File not found: {file_path}")
-
 import os
 import re
 import time
@@ -43,7 +24,6 @@ start_time = time.time()
 MAX_RUNTIME = 5 * 60 * 60 + 50 * 60  # 5h 50m = 21000 seconds
 
 # ------------- Helper Functions -------------
-
 def time_exceeded():
     return (time.time() - start_time) >= MAX_RUNTIME
 
@@ -86,7 +66,6 @@ def get_sub_links(base_url):
         return []
 
 # ------------- Main Logic -------------
-
 if not os.path.exists(file_path):
     raise FileNotFoundError(f"❌ File not found: {file_path}")
 
@@ -110,8 +89,13 @@ else:
 
 # Process only websites with blank accessible field
 pending_websites = df[df["accessible"].isna() | (df["accessible"] == "")]
-print(f"🔍 Total pending websites: {len(pending_websites)}")
+total_websites = len(df)
+pending_count = len(pending_websites)
+pending_percent = (pending_count / total_websites * 100) if total_websites > 0 else 0
 
+print(f"🔍 Pending websites: {pending_count}/{total_websites} ({pending_percent:.2f}% remaining)")
+
+# --- Start Processing ---
 try:
     for idx, row in pending_websites.iterrows():
         if time_exceeded():
@@ -170,6 +154,11 @@ try:
         # Save main file progress after every website
         save_excel(df, file_path)
 
+        # --- Print live progress ---
+        processed = df["accessible"].notna().sum()
+        progress_percent = (processed / total_websites) * 100
+        print(f"📊 Progress: {processed}/{total_websites} ({progress_percent:.2f}%) done")
+
 except KeyboardInterrupt:
     print("\n🛑 Keyboard interrupt detected. Saving all progress before exit...")
 
@@ -183,6 +172,3 @@ finally:
 print("\n🏁 Task completed.")
 print(f"✅ Website emails saved in: {emails_file}")
 print(f"❌ Not accessible list saved in: {not_accessible_file}")
-
-
-
