@@ -3,7 +3,7 @@ name: Google Drive Loader with Env Detection
 on:
   workflow_dispatch:   # manual trigger
   schedule:
-    - cron: '0 4/6 * * *'  # 10 AM Morning & Every 6 hours
+    - cron: '40 4,10,16,22 * * *'  # 10 AM Morning & Every 6 hours
 
 jobs:
   run:
